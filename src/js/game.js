@@ -331,7 +331,14 @@ function update( game ) {
   for ( const g of game.ghosts ) {
     if ( !collides( game.pacman, g ) ) continue;
     if ( g.mode === 'frightened' ) {
-      g.mode = 'eyes';
+      // Teleport directo a la celda de inicio dentro de la pen y re-exitar (spec 04).
+      g.x = g.startX;
+      g.y = g.startY;
+      g.dir = 'up';
+      g.mode = 'chase';
+      g.leftPen = false;
+      g.released = true;
+      g.releaseAt = performance.now();
       game.score += GHOST_EAT_SCORES[ Math.min( game.frightChain, 3 ) ];
       game.frightChain++;
     } else if ( g.mode === 'eyes' ) {
