@@ -153,6 +153,11 @@ function decideGhost( game, g ) {
 }
 
 function moveGhost( game, g ) {
+  if ( !g.released ) {
+    if ( performance.now() < g.releaseAt ) return;
+    g.released = true;
+  }
+
   const grid = game.grid;
   const width = grid[ 0 ].length;
 
