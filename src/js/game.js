@@ -216,10 +216,14 @@ function resetPositions( game ) {
   p.y = PACMAN_START.y;
   p.dir = 'left';
   p.nextDir = null;
+  const releaseStart = performance.now();
   game.ghosts.forEach( ( g, i ) => {
     g.x = GHOST_STARTS[ i ].x;
     g.y = GHOST_STARTS[ i ].y;
     g.dir = 'up';
+    g.released = false;
+    g.leftPen = false;
+    g.releaseAt = releaseStart + ( i + 1 ) * GHOST_RELEASE_INTERVAL_MS;
   } );
 }
 
