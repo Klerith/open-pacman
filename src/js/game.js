@@ -13,6 +13,13 @@ const OPPOSITE = { left: 'right', right: 'left', up: 'down', down: 'up' };
 const PACMAN_SPEED = 0.125; // 1/8 celda/frame -> alinea cada 8 frames
 const GHOST_SPEED = 0.1;    // 1/10 celda/frame
 
+const GHOST_RELEASE_INTERVAL_MS = 1500;
+const AMBUSHER_AIM_STRIDE = 4; // celdas por delante de Pac-Man
+const PATROL_CORNERS = [
+  { x: 1, y: 1 },
+  { x: 26, y: 29 },
+];
+
 // Crea una partida nueva. Copia MAZE (pristino) a game.grid para poder comer
 // dots sin destruir el original, y reiniciar.
 function createGame() {
@@ -22,6 +29,8 @@ function createGame() {
 
   let dots = 0;
   for ( const row of grid ) for ( const v of row ) if ( v === 2 ) dots++;
+
+  const releaseStart = performance.now();
 
   return {
     state: 'start',
@@ -36,12 +45,14 @@ function createGame() {
       nextDir: null,
       speed: PACMAN_SPEED,
     },
-    ghosts: GHOST_STARTS.map( ( g ) => ( {
+    ghosts: GHOST_STARTS.map( ( g, i ) => ( {
       x: g.x,
       y: g.y,
       dir: 'up',
       speed: GHOST_SPEED,
       kind: g.kind,
+      released: false,
+      releaseAt: releaseStart + ( i + 1 ) * GHOST_RELEASE_INTERVAL_MS,
     } ) ),
   };
 }
@@ -120,16 +131,32 @@ function decideGhost( game, g ) {
   // Sin salida (callejon): permitir el giro de 180.
   const choices = options.length ? options : [ '' + OPPOSITE[ g.dir ] ];
 
-  if ( g.kind === 'hunter' ) {
-    const px = Math.round( p.x );
-    const py = Math.round( p.y );
+  if ( g.kind === 'hunter' || g.kind === 'ambusher' || g.kind === 'patrol' ) {
+    let tx, ty;
+    if ( g.kind === 'hunter' ) {
+      tx = Math.round( p.x );
+      ty = Math.round( p.y );
+    } else if ( g.kind === 'ambusher' ) {
+      // ambusher: 4 celdas por delante de Pac-Man
+      const pd = DIRS[ p.dir ] || DIRS.left;
+      tx = Math.round( p.x ) + pd.x * AMBUSHER_AIM_STRIDE;
+      ty = Math.round( p.y ) + pd.y * AMBUSHER_AIM_STRIDE;
+    } else {
+      // patrol: alterna entre PATROL_CORNERS
+      if ( g.patrolTarget === undefined ) g.patrolTarget = 0;
+      tx = PATROL_CORNERS[ g.patrolTarget ].x;
+      ty = PATROL_CORNERS[ g.patrolTarget ].y;
+      if ( Math.abs( g.x - tx ) + Math.abs( g.y - ty ) <= 1 ) {
+        g.patrolTarget = ( g.patrolTarget + 1 ) % PATROL_CORNERS.length;
+      }
+    }
     let best = choices[ 0 ];
     let bestDist = Infinity;
     for ( const dir of choices ) {
       const d = DIRS[ dir ];
       const nx = g.x + d.x;
       const ny = g.y + d.y;
-      const dist = Math.abs( nx - px ) + Math.abs( ny - py );
+      const dist = Math.abs( nx - tx ) + Math.abs( ny - ty );
       if ( dist < bestDist ) {
         bestDist = dist;
         best = dir;
@@ -142,6 +169,11 @@ function decideGhost( game, g ) {
 }
 
 function moveGhost( game, g ) {
+  if ( !g.released ) {
+    if ( performance.now() < g.releaseAt ) return;
+    g.released = true;
+  }
+
   const grid = game.grid;
   const width = grid[ 0 ].length;
 
