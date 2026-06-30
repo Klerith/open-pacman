@@ -1,6 +1,6 @@
 # SPEC 02 — Salida de fantasmas desde la pen
 
-> **Estado:** Approved
+> **Estado:** implementado
 > **Depende de:** SPEC 01 — Comportamientos de los cuatro fantasmas
 > **Fecha:** 2026-06-30
 > **Objetivo:** Hacer que cada fantasma abandone la pen al ser liberado siguiendo un camino guionizado hasta la celda de salida `(13,11)`, y transicione a su comportamiento de persecución normal sin quedar atrapado dentro.

@@ -1,6 +1,6 @@
 # SPEC 01 — Comportamientos de los cuatro fantasmas
 
-> **Estado:** Approved
+> **Estado:** implementado
 > **Depende de:** (ninguno — spec inicial)
 > **Fecha:** 2026-06-30
 > **Objetivo:** Definir cuatro fantasmas con comportamientos distintos (persecución agresiva, emboscada, patrulla y aleatorio) liberados escalonadamente cada 1.5 s desde la pen.

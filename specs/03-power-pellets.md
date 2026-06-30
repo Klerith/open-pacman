@@ -1,6 +1,6 @@
 # SPEC 03 — Power pellets y modo asustado
 
-> **Estado:** Aprobado
+> **Estado:** implementado
 > **Depende de:** SPEC 01 — Comportamientos de los cuatro fantasmas; SPEC 02 — Salida de fantasmas desde la pen
 > **Fecha:** 2026-06-30
 > **Objetivo:** Añadir 4 power pellets que asustan a los fantasmas por 6s, dejándolos vulnerables a ser comidos por Pac-Man con puntaje escalado y obligando a sus ojos a regresar a la pen antes de re-exitar.
