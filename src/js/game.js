@@ -251,6 +251,17 @@ function moveGhost( game, g ) {
   g.x += d.x * speed;
   g.y += d.y * speed;
   wrapTunnel( g, width );
+
+  // Seguridad: si un fantasma sale del mapa, teleport a su start y re-exitar (spec 04).
+  if ( g.x < 0 || g.x > 27 || g.y < 0 || g.y > 31 ) {
+    g.x = g.startX;
+    g.y = g.startY;
+    g.dir = 'up';
+    g.mode = 'chase';
+    g.leftPen = false;
+    g.released = true;
+    g.releaseAt = performance.now();
+  }
 }
 
 function resetPositions( game ) {
