@@ -19,6 +19,7 @@ const PATROL_CORNERS = [
   { x: 1, y: 1 },
   { x: 26, y: 29 },
 ];
+const PEN_EXIT = { x: 13, y: 11 };
 
 // Crea una partida nueva. Copia MAZE (pristino) a game.grid para poder comer
 // dots sin destruir el original, y reiniciar.
@@ -53,6 +54,7 @@ function createGame() {
       kind: g.kind,
       released: false,
       releaseAt: releaseStart + ( i + 1 ) * GHOST_RELEASE_INTERVAL_MS,
+      leftPen: false,
     } ) ),
   };
 }
