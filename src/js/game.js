@@ -270,7 +270,6 @@ function resetPositions( game ) {
   p.y = PACMAN_START.y;
   p.dir = 'left';
   p.nextDir = null;
-  const releaseStart = performance.now();
   game.frightUntil = 0;
   game.frightChain = 0;
   game.ghosts.forEach( ( g, i ) => {
@@ -279,7 +278,6 @@ function resetPositions( game ) {
     g.dir = 'up';
     g.released = false;
     g.leftPen = false;
-    g.releaseAt = releaseStart + ( i + 1 ) * GHOST_RELEASE_INTERVAL_MS;
     g.mode = 'chase';
   } );
 }
@@ -325,6 +323,7 @@ function update( game ) {
         return;
       }
       resetPositions( game );
+      game.state = 'ready';
       break;
     }
   }
@@ -332,6 +331,21 @@ function update( game ) {
   if ( game.dotsRemaining <= 0 ) game.state = 'won';
 }
 
+// Arranca la partida tras la pantalla "listo": reinicia timers de la pen y
+// aplica la primera direccion elegida por el jugador.
+function beginRound( game, initialDir ) {
+  const now = performance.now();
+  game.ghosts.forEach( ( g, i ) => {
+    g.released = false;
+    g.leftPen = false;
+    g.releaseAt = now + ( i + 1 ) * GHOST_RELEASE_INTERVAL_MS;
+  } );
+  game.pacman.dir = initialDir;
+  game.pacman.nextDir = null;
+  game.state = 'playing';
+}
+
 window.createGame = createGame;
 window.update = update;
+window.beginRound = beginRound;
 window.DIRS = DIRS;

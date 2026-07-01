@@ -4,6 +4,7 @@
 const canvas = document.getElementById( 'game' );
 const ctx = canvas.getContext( '2d' );
 const overlay = document.getElementById( 'overlay' );
+const readyOverlay = document.getElementById( 'ready-overlay' );
 const actionBtn = document.getElementById( 'action-btn' );
 
 let game = createGame();
@@ -20,7 +21,12 @@ document.addEventListener( 'keydown', ( e ) => {
   const dir = KEY_DIR[ e.key ];
   if ( !dir ) return;
   e.preventDefault();
-  if ( game.state === 'playing' ) game.pacman.nextDir = dir;
+  if ( game.state === 'ready' ) {
+    beginRound( game, dir );
+    readyOverlay.classList.remove( 'show' );
+  } else if ( game.state === 'playing' ) {
+    game.pacman.nextDir = dir;
+  }
 } );
 
 function showOverlay( title, cls, btnLabel ) {
@@ -31,10 +37,15 @@ function showOverlay( title, cls, btnLabel ) {
   document.getElementById( 'action-btn' ).addEventListener( 'click', startGame );
 }
 
+function showReadyScreen() {
+  readyOverlay.classList.add( 'show' );
+}
+
 function startGame() {
   game = createGame();
-  game.state = 'playing';
+  game.state = 'ready';
   overlay.classList.remove( 'show' );
+  showReadyScreen();
 }
 
 if ( actionBtn ) actionBtn.addEventListener( 'click', startGame );
@@ -43,7 +54,8 @@ function loop() {
   frame++;
   if ( game.state === 'playing' ) {
     update( game );
-    if ( game.state === 'won' ) showOverlay( 'GANASTE', 'win', 'Reiniciar' );
+    if ( game.state === 'ready' ) showReadyScreen();
+    else if ( game.state === 'won' ) showOverlay( 'GANASTE', 'win', 'Reiniciar' );
     else if ( game.state === 'lost' ) showOverlay( 'PERDISTE', 'lose', 'Reiniciar' );
   }
   draw( ctx, game, frame );
